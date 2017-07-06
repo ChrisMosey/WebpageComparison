@@ -2,12 +2,25 @@ const chrome = require('chrome-remote-interface');
 const argv = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 
-const targetURL = argv.url || 'https://jonathanmh.com';
+let targets = argv.url || require("./websites.json");
+const full = argv.full || false;
+
 const viewport = [1440, 900];
 const screenshotDelay = 2000; // ms
-const fullPage = argv.fullPage || false;
 
-if (fullPage) {
+if (typeof(targets) != "array") {
+    let type = "first page";
+    if (full) {
+        type = "full";
+    }
+
+    targets = [{
+        url: targets,
+        captureType: type
+    }];
+}
+
+if (full) {
     console.log("will capture full page")
 }
 
@@ -31,6 +44,7 @@ chrome(async(client) => {
     // set viewport and visible size
     await Emulation.setDeviceMetricsOverride(device);
     await Emulation.setVisibleSize({ width: viewport[0], height: viewport[1] });
+
 
     let urls = ["https://www.google.ca/", "http://kwsurplus.com", "https://ca.yahoo.com/?p=us"];
     for (var i = 0; i < urls.length; i++) {
