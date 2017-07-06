@@ -1,0 +1,9 @@
+ [{
+         "url": "https://www.google.ca",
+         "captureType": "full"
+     },
+     {
+         "url": "http://kwsurplus.com",
+         "captureType": "first page"
+     }
+ ]
