@@ -32,8 +32,18 @@ chrome(async(client) => {
     await Emulation.setDeviceMetricsOverride(device);
     await Emulation.setVisibleSize({ width: viewport[0], height: viewport[1] });
 
-    await Page.navigate({ url: targetURL });
+    let urls = ["https://www.google.ca/", "http://kwsurplus.com", "https://ca.yahoo.com/?p=us"];
+    for (var i = 0; i < urls.length; i++) {
+        await getScreenShot(urls, Page, fullPage, Emulation, client, i);
+    }
 
+
+}).on('error', err => {
+    console.error('Cannot connect to browser:', err);
+});
+
+async function getScreenShot(urls, Page, fullPage, Emulation, client, i) {
+    await Page.navigate({ url: urls[i] });
     Page.loadEventFired(async() => {
         if (fullPage) {
             const { root: { nodeId: documentNodeId } } = await DOM.getDocument();
@@ -53,16 +63,15 @@ chrome(async(client) => {
     setTimeout(async() => {
         const screenshot = await Page.captureScreenshot({ format: "png", fromSurface: true });
         const buffer = new Buffer(screenshot.data, 'base64');
-        fs.writeFile('desktop.png', buffer, 'base64', (err) => {
+        fs.writeFile('desktop' + i + '.png', buffer, 'base64', (err) => {
             if (err) {
                 console.error(err);
             } else {
                 console.log('Screenshot saved');
             }
         });
-        client.close();
+        if (i >= urls.length - 1) {
+            client.close();
+        }
     }, screenshotDelay);
-
-}).on('error', err => {
-    console.error('Cannot connect to browser:', err);
-});
+}
